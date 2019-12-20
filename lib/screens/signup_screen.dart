@@ -44,6 +44,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         decoration: InputDecoration(
                           labelText: "  Adınızı Giriniz",
                           labelStyle: TextStyle(fontSize: 20),
+                          errorStyle: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
                           prefixIcon: Icon(
                             Icons.person,
                             size: 35,
@@ -54,7 +56,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         style: TextStyle(
                             fontSize: 20, fontWeight: FontWeight.bold),
-                            validator: (input) => input.trim().isEmpty
+                        validator: (input) => input.trim().isEmpty
                             ? 'Please enter a valid name'
                             : null,
                         onSaved: (value) {
@@ -69,6 +71,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         decoration: InputDecoration(
                           labelText: "  Email Giriniz",
                           labelStyle: TextStyle(fontSize: 20),
+                          errorStyle: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
                           prefixIcon: Icon(
                             Icons.email,
                             size: 35,
@@ -82,7 +86,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         onSaved: (value) {
                           _email = value;
                         },
-                         validator: (input) => !input.contains('@')
+                        validator: (input) => !input.contains('@')
                             ? 'Please enter a valid email'
                             : null,
                       ),
@@ -94,6 +98,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         decoration: InputDecoration(
                           labelText: "  Şifre Giriniz",
                           labelStyle: TextStyle(fontSize: 20),
+                          errorStyle: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
                           prefixIcon: Icon(
                             Icons.lock,
                             size: 35,
@@ -104,7 +110,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                         style: TextStyle(
                             fontSize: 20, fontWeight: FontWeight.bold),
-                             validator: (input) => input.length < 6
+                        validator: (input) => input.length < 6
                             ? 'Must be at least 6 characters'
                             : null,
                         onSaved: (value) {
@@ -178,14 +184,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  void _submit() async{
+  void _submit() async {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
-       AuthService.signUpUser(context, _name, _email, _password);
-    debugPrint("Kullanıcı Başarıyla Eklendi.");
-    }else{
-        debugPrint("Kullanıcı Oluşturmada Hata Meydana Geldi.");
+      AuthService.signUpUser(context, _name, _email, _password);
+      debugPrint("Kullanıcı Başarıyla Eklendi.");
+    } else {
+      debugPrint("Kullanıcı Oluşturmada Hata Meydana Geldi.");
     }
-  
   }
 }

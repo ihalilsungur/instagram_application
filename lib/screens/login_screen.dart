@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:instagram_application/screens/signup_screen.dart';
+import 'package:instagram_application/services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   static String id = "login_screen";
@@ -40,6 +41,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         decoration: InputDecoration(
                           labelText: "  Email Giriniz",
                           labelStyle: TextStyle(fontSize: 20),
+                            errorStyle: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold
+                          ),
                           prefixIcon: Icon(
                             Icons.email,
                             size: 35,
@@ -50,6 +55,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         style: TextStyle(
                             fontSize: 20, fontWeight: FontWeight.bold),
+                        validator: (input) => !input.contains("@")
+                            ? "Lütfen Geçerli Bir Email Giriniz"
+                            : null,
                         onSaved: (value) {
                           _email = value;
                         },
@@ -62,6 +70,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         decoration: InputDecoration(
                           labelText: "  Şifre Giriniz",
                           labelStyle: TextStyle(fontSize: 20),
+                          errorStyle: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold
+                          ),
                           prefixIcon: Icon(
                             Icons.lock,
                             size: 35,
@@ -72,6 +84,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         style: TextStyle(
                             fontSize: 20, fontWeight: FontWeight.bold),
+                        validator: (input) => input.length<6
+                            ? "Lütfen En Az 6 Karakter Giriniz"
+                            : null,
                         onSaved: (value) {
                           _password = value;
                         },
@@ -151,6 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _formKey.currentState.save();
       print("Email : " + _email);
       print("Şifre : " + _password);
+      AuthService.login(_email, _password);
     }
   }
 }
