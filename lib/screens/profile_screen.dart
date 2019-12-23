@@ -1,5 +1,8 @@
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram_application/models/user.dart';
+import 'package:instagram_application/screens/edit_profile_screen.dart';
 import 'package:instagram_application/utilities/constants.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -15,28 +18,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+       appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: Center(
+          child: Text(
+            "Instagram",
+            style: TextStyle(
+                color: Colors.black,
+                fontFamily: "Billabong",
+                fontSize: 35,
+                fontWeight: FontWeight.w300),
+          ),
+        ),
+      ),
       backgroundColor: Colors.white,
       body: FutureBuilder(
         future: userRef.document(widget.userId).get(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (!snapshot.hasData) {
             return Center(
-           child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(),
             );
           }
-         User _user = User.fromDoc(snapshot.data);
-       
+          User _user = User.fromDoc(snapshot.data);
+
           return ListView(
             children: <Widget>[
               Padding(
                 padding: EdgeInsets.fromLTRB(30, 30, 30, 0),
                 child: Row(
                   children: <Widget>[
+                    
                     CircleAvatar(
                       radius: 50,
-                      backgroundImage: NetworkImage(
-                          "https://images.hdqwalls.com/wallpapers/bthumb/fox-depth-4k-oi.jpg"),
+                      backgroundColor: Colors.grey,
+                      backgroundImage: _user
+                              .profileImageUrl.isEmpty
+                          ? AssetImage("assets/images/user_placeholder.jpg")
+                          : CachedNetworkImageProvider(_user.profileImageUrl)
                     ),
+                    
                     Expanded(
                       child: Column(
                         children: <Widget>[
@@ -83,9 +104,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 MediaQuery.of(context).size.width * 1 / 2 - 10,
                             child: RaisedButton(
                               color: Colors.blue,
-                              onPressed: () {
-                                debugPrint("Edit Profile");
-                              },
+                              onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      EditProfileScreen(
+                                    user: _user,
+                                  ),
+                                ),
+                              ),
                               child: Text(
                                 "Edit Profile",
                                 style: TextStyle(
@@ -115,7 +142,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Container(
                       height: 100,
                       child: Text(
-                       _user.bio,
+                        _user.bio,
                         style: TextStyle(fontSize: 15),
                       ),
                     ),
