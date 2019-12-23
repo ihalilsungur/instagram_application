@@ -41,5 +41,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>Photo Library Usage Description</key>
+	<string>Post and share photos</string>
+	<key>Camera  Usage Description</key>
+	<string>Post and share photos</string>
 </dict>
 </plist>
