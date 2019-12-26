@@ -14,7 +14,7 @@ class StorageService {
     if (url.isNotEmpty) {
       //kullanıcı profil resmini güncelleme
       RegExp exp = RegExp(r'userProfile_(.*).jpg');
-      photoId =exp.firstMatch(url)[1];
+      photoId = exp.firstMatch(url)[1];
       print(photoId);
     }
     StorageUploadTask uploadTask = storageRef
@@ -32,5 +32,17 @@ class StorageService {
         image.absolute.path, "$path/img_$photoId.jpg",
         quality: 70);
     return compressImageFile;
+  }
+
+  static Future<String> uploadPost(File imageFile) async {
+    String photoId = Uuid().v4();
+    File image = await compressImage(photoId, imageFile);
+
+    StorageUploadTask uploadTask = storageRef
+        .child("images/posts/post_$photoId.jpg")
+        .putFile(image);
+    StorageTaskSnapshot storageShapshot = await uploadTask.onComplete;
+    String downloadUrl = await storageShapshot.ref.getDownloadURL();
+    return downloadUrl;
   }
 }
