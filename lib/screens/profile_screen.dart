@@ -1,24 +1,129 @@
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:instagram_application/models/user.dart';
+import 'package:instagram_application/models/user.data.dart';
 import 'package:instagram_application/screens/edit_profile_screen.dart';
+import 'package:instagram_application/services/database_service.dart';
 import 'package:instagram_application/utilities/constants.dart';
+import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
+  final String currentUserId;
   final String userId;
-
-  ProfileScreen({this.userId});
+  ProfileScreen({this.currentUserId, this.userId});
 
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  bool isFollowing = false;
+  int followerCount = 0;
+  int followingCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _setupIsFollowing();
+    _setupFollowers();
+    _setupFollowing();
+  }
+
+  _setupIsFollowing() async {
+    bool _isFollowingUser = await DatabaseService.isFollowing(
+        currentUserId: widget.currentUserId, userId: widget.userId);
+    setState(() {
+      isFollowing = _isFollowingUser;
+    });
+  }
+
+  _setupFollowers() async {
+    int _userFollowerCount = await DatabaseService.numFollowers(widget.userId);
+    setState(() {
+      followerCount = _userFollowerCount;
+    });
+  }
+
+  _setupFollowing() async {
+    int _userFollowingCount = await DatabaseService.numFollowing(widget.userId);
+    setState(() {
+      followingCount = _userFollowingCount;
+    });
+  }
+
+ _followOrUnfollow(){
+   if (isFollowing) {
+     _unfollowUser();
+   }else{
+     _followUser();
+   }
+ }
+
+ _followUser(){
+   DatabaseService.followUser(
+     currentUserId: widget.currentUserId,
+     userId: widget.userId
+   );
+   setState(() {
+     isFollowing = true;
+     followerCount++;
+   });
+
+   print("_followUser() metodu _isFollow :"+isFollowing.toString());
+ }
+
+ _unfollowUser(){
+   DatabaseService.unFollowUser(
+     currentUserId: widget.currentUserId,
+     userId: widget.userId
+   );
+   setState(() {
+     isFollowing = false;
+     followerCount--;
+   });
+   print("_unfollowUser() metodu _isFollow :"+isFollowing.toString());
+ }
+  _displayButton(User _user) {
+    return _user.id == Provider.of<UserData>(context).currentUserId
+        ? Container(
+            width: MediaQuery.of(context).size.width * 1 / 2 - 10,
+            child: RaisedButton(
+              color: Colors.blue,
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (BuildContext context) => EditProfileScreen(
+                    user: _user,
+                  ),
+                ),
+              ),
+              child: Text(
+                "Profili Güncelle",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18),
+              ),
+            ),
+          )
+        : Container(
+            width: MediaQuery.of(context).size.width * 1 / 2 - 10,
+            child: RaisedButton(
+              color: isFollowing ? Colors.grey[200] : Colors.blue,
+              textColor: isFollowing ? Colors.black : Colors.white,
+              onPressed: () =>_followOrUnfollow(),
+              child: Text(
+                isFollowing ? "Vazgeç" : "Takip Et",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+            ),
+          );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       appBar: AppBar(
+      appBar: AppBar(
         backgroundColor: Colors.white,
         title: Center(
           child: Text(
@@ -48,16 +153,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: EdgeInsets.fromLTRB(30, 30, 30, 0),
                 child: Row(
                   children: <Widget>[
-                    
                     CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Colors.grey,
-                      backgroundImage: _user
-                              .profileImageUrl.isEmpty
-                          ? AssetImage("assets/images/user_placeholder.jpg")
-                          : CachedNetworkImageProvider(_user.profileImageUrl)
-                    ),
-                    
+                        radius: 50,
+                        backgroundColor: Colors.grey,
+                        backgroundImage: _user.profileImageUrl.isEmpty
+                            ? AssetImage("assets/images/user_placeholder.jpg")
+                            : CachedNetworkImageProvider(
+                                _user.profileImageUrl)),
                     Expanded(
                       child: Column(
                         children: <Widget>[
@@ -70,58 +172,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     "12",
                                     style: TextStyle(
                                         fontSize: 20,
-                                        fontWeight: FontWeight.bold),
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey),
                                   ),
-                                  Text("posts")
+                                  Text("Gönderi")
                                 ],
                               ),
                               Column(
                                 children: <Widget>[
                                   Text(
-                                    "386",
+                                    followerCount.toString(),
                                     style: TextStyle(
                                         fontSize: 20,
-                                        fontWeight: FontWeight.bold),
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey),
                                   ),
-                                  Text("follwers")
+                                  Text("Takipçi",style: TextStyle(
+                                    color: Colors.black87,
+                                   
+                                  ),)
                                 ],
                               ),
                               Column(
                                 children: <Widget>[
                                   Text(
-                                    "345",
+                                    followingCount.toString(),
                                     style: TextStyle(
                                         fontSize: 20,
-                                        fontWeight: FontWeight.bold),
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey),
                                   ),
-                                  Text("following")
+                                  Text("Takip")
                                 ],
                               ),
                             ],
                           ),
-                          Container(
-                            width:
-                                MediaQuery.of(context).size.width * 1 / 2 - 10,
-                            child: RaisedButton(
-                              color: Colors.blue,
-                              onPressed: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (BuildContext context) =>
-                                      EditProfileScreen(
-                                    user: _user,
-                                  ),
-                                ),
-                              ),
-                              child: Text(
-                                "Edit Profile",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18),
-                              ),
-                            ),
-                          ),
+                          _displayButton(_user),
                         ],
                       ),
                     )
