@@ -128,7 +128,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       setState(() {
         _isLoading = true;
       });
-      //posta gönderme
+      //gönderi paylaşma
       String imageUrl = await StorageService.uploadPost(_image);
       Post post = new Post(
         imageUrl: imageUrl,
