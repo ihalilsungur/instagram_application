@@ -19,7 +19,7 @@ class DatabaseService {
   }
 
   static void createPost(Post post) {
-    postRef.document(post.authorId).collection("usersPosts").add({
+    postsRef.document(post.authorId).collection("usersPosts").add({
       "imageUrl": post.imageUrl,
       "caption": post.caption,
       "likes": post.likes,
@@ -106,6 +106,17 @@ class DatabaseService {
         List<Post> _posts = _feedSnapshot.documents.map((doc)=>Post.fromDoc(doc)).toList();
         return _posts;
   }
+
+    static Future<List<Post>>getUserPosts(String userId)async{
+         QuerySnapshot _userPostsSnapshot = await postsRef
+        .document(userId)
+        .collection("usersPosts")
+        .orderBy('timestamp', descending: true)
+        .getDocuments();
+        List<Post> _posts = _userPostsSnapshot.documents.map((doc)=>Post.fromDoc(doc)).toList();
+        return _posts;
+    }
+
   static Future<User> getUserWithId(String userId)async{
     DocumentSnapshot _userDocSnapshot = await userRef.document(userId).get();
     if (_userDocSnapshot.exists) {
