@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:instagram_application/models/post.dart';
 import 'package:instagram_application/models/user.data.dart';
@@ -209,6 +208,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     }
   }
 
+/*Resim kırpma metodu
   _cropImage(File imageFile) async {
     File croppedImage = await ImageCropper.cropImage(
       sourcePath: imageFile.path,
@@ -216,5 +216,5 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     );
     return croppedImage;
   }
-
+*/
 }
