@@ -35,7 +35,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         ),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.add),
+            icon: Icon(Icons.send),
             onPressed: () => _submit(),
           ),
         ],
@@ -133,7 +133,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       Post post = new Post(
         imageUrl: imageUrl,
         caption: _caption,
-        likes: {},
+        likeCount: 0,
         authorId: Provider.of<UserData>(context).currentUserId,
         timestamp: Timestamp.fromDate(DateTime.now()),
       );
