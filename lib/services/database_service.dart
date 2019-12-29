@@ -22,7 +22,7 @@ class DatabaseService {
     postsRef.document(post.authorId).collection("usersPosts").add({
       "imageUrl": post.imageUrl,
       "caption": post.caption,
-      "likes": post.likes,
+      "likeCount": post.likeCount,
       "authorId": post.authorId,
       "timestamp": post.timestamp
     });
@@ -103,25 +103,82 @@ class DatabaseService {
         .collection("userFeed")
         .orderBy('timestamp', descending: true)
         .getDocuments();
-        List<Post> _posts = _feedSnapshot.documents.map((doc)=>Post.fromDoc(doc)).toList();
-        return _posts;
+    List<Post> _posts =
+        _feedSnapshot.documents.map((doc) => Post.fromDoc(doc)).toList();
+    return _posts;
   }
 
-    static Future<List<Post>>getUserPosts(String userId)async{
-         QuerySnapshot _userPostsSnapshot = await postsRef
+  static Future<List<Post>> getUserPosts(String userId) async {
+    QuerySnapshot _userPostsSnapshot = await postsRef
         .document(userId)
         .collection("usersPosts")
         .orderBy('timestamp', descending: true)
         .getDocuments();
-        List<Post> _posts = _userPostsSnapshot.documents.map((doc)=>Post.fromDoc(doc)).toList();
-        return _posts;
-    }
+    List<Post> _posts =
+        _userPostsSnapshot.documents.map((doc) => Post.fromDoc(doc)).toList();
+    return _posts;
+  }
 
-  static Future<User> getUserWithId(String userId)async{
+  static Future<User> getUserWithId(String userId) async {
     DocumentSnapshot _userDocSnapshot = await userRef.document(userId).get();
     if (_userDocSnapshot.exists) {
       return User.fromDoc(_userDocSnapshot);
     }
     return User();
+  }
+
+  static void likePost({String currentUserId, Post post}) {
+    DocumentReference _postRef = postsRef
+        .document(post.authorId)
+        .collection("usersPosts")
+        .document(post.id);
+    _postRef.get().then((doc) {
+      int _likeCount = doc.data['likeCount'];
+      _postRef.updateData({"likeCount": _likeCount + 1});
+      likesRef
+          .document(post.id)
+          .collection('postLikes')
+          .document(currentUserId)
+          .setData({});
+    });
+  }
+
+  static void unlikePost({String currentUserId, Post post}) {
+    DocumentReference _postRef = postsRef
+        .document(post.authorId)
+        .collection("userPosts")
+        .document(post.id);
+    _postRef.get().then((doc) {
+      int _likeCount = doc.data['likeCount'];
+      _postRef.updateData({"likeCount": _likeCount - 1});
+      likesRef
+          .document(post.id)
+          .collection('postLikes')
+          .document(currentUserId)
+          .get()
+          .then((doc) {
+        if (doc.exists) {
+          doc.reference.delete();
+        }
+      });
+    });
+  }
+
+  static Future<bool> didLikePost({String currentUserId, Post post}) async {
+    DocumentSnapshot _userDoc = await likesRef
+        .document(post.id)
+        .collection("postLikes")
+        .document(currentUserId)
+        .get();
+    return _userDoc.exists;
+  }
+
+  static void commentOnPost(
+      {String currentUserId, String postId, String comment}) {
+    commentsRef.document(postId).collection('postComments').add({
+      'content': comment,
+      'authorId': currentUserId,
+      'timestamp': Timestamp.fromDate(DateTime.now()),
+    });
   }
 }
