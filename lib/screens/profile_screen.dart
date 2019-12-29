@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:instagram_application/models/post.dart';
 import 'package:instagram_application/models/user.dart';
 import 'package:instagram_application/models/user.data.dart';
+import 'package:instagram_application/screens/comments_screen.dart';
 import 'package:instagram_application/screens/edit_profile_screen.dart';
+import 'package:instagram_application/services/auth_service.dart';
 import 'package:instagram_application/services/database_service.dart';
 import 'package:instagram_application/utilities/constants.dart';
 import 'package:instagram_application/widgets/post_view.dart';
@@ -268,9 +270,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   _buildTilePost(Post post) {
     return GridTile(
-      child: Image(
-        image: CachedNetworkImageProvider(post.imageUrl),
-        fit: BoxFit.cover,
+      child: GestureDetector(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CommentsScreen(
+              postId: post.id,
+              likeCount: post.likeCount,
+            ),
+          ),
+        ),
+        child: Image(
+          image: CachedNetworkImageProvider(post.imageUrl),
+          fit: BoxFit.cover,
+        ),
       ),
     );
   }
@@ -288,7 +301,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         shrinkWrap: true,
         physics: NeverScrollableScrollPhysics(),
         children: tiles,
-
       );
     } else {
       //Column
@@ -321,6 +333,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 fontWeight: FontWeight.w300),
           ),
         ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.exit_to_app),
+            onPressed: AuthService.logOut,
+          ),
+        ],
       ),
       backgroundColor: Colors.white,
       body: FutureBuilder(
